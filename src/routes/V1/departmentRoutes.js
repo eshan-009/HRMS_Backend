@@ -1,5 +1,5 @@
 const express = require("express")
-const { createDepartment, editDepartment, deleteDepartment, getDepartment, assignBranch, unassignBranch, assignOrganization, unassignOrganization } = require("../../controllers/department")
+const { createDepartment, editDepartment, deleteDepartment, getDepartment, assignBranch, unassignBranch, assignOrganization, unassignOrganization } = require("../../controllers/Department")
 const { auth } = require("../../middleware/auth")
 const router = express.Router()
 
