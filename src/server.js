@@ -2,6 +2,7 @@ const express = require("express");
 const dbConnect = require("./config/database");
 const { cloudinaryConfig } = require("./config/cloudinary");
 const fileUpload = require("express-fileupload");
+const Cors = require("cors")
 // const { createFullAccessList } = require("./controllers/getAccessList");
 const app = express();
 require("dotenv").config();
@@ -12,6 +13,7 @@ app.use(fileUpload({
     tempFileDir : '/tmp/'
 }));
 app.use(express.json())
+app.use(Cors())
 app.use("/api",require("./routes/V1/Index"))
 cloudinaryConfig();
 dbConnect();

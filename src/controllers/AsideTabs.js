@@ -5,19 +5,21 @@ const asideTabs = require("../models/asideTabs")
 const getTabData = async(req,res)=>{
     try
     {
+        
         const employee_Tab = req.body.accessList.includes("GET_EMPLOYEE_TAB")
         const organization_Tab = req.body.accessList.includes("GET_ORGANIZATION_TAB")
         const branch_Tab = req.body.accessList.includes("GET_BRANCH_TAB")
         const department_Tab = req.body.accessList.includes("GET_DEPARTMENT_TAB")
         const role_Tab = req.body.accessList.includes("GET_ROLE_TAB")
 
-        if(!dashboard && !employee_Tab && !organization_Tab && !branch_Tab && !department_Tab )
+        if( !employee_Tab && !organization_Tab && !branch_Tab && !department_Tab )
         {
             return res.status().json({
                 success : false,
                 message : "Not Authorized to perform this action"
             })
         }
+       
         let requiredData = new Map()
         requiredData.set("Organization",organization_Tab)
         requiredData.set("Sub Organization",branch_Tab)

@@ -1,8 +1,10 @@
 const express = require("express")
 const { addEmployee, addEmployeePersonalDetails, addemployeeAdditionalDetails, editEmployeePersonalDetails, editEmployeeAdditionalDetails, assignDepartmentToEmployee, unAssignDepartmentToEmployee, deleteEmployee, getEmployees, getEmployeebyname, getEmployeebyPDetailId, getEmployeesByDepartment } = require("../../controllers/Employee")
 const { auth } = require("../../middleware/auth")
+const { getUserById } = require("../../controllers/User")
 const router = express.Router()
 
+router.get("/getUserById",auth,getUserById)
 router.get("/getEmployeeData/",auth,getEmployees)
 router.get("/getEmployeeByDepartment/:departmentId/",auth,getEmployeesByDepartment)
 router.post("/createEmployee/:organizationId/:roleId",auth,addEmployee)
