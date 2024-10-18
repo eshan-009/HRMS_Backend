@@ -23,12 +23,20 @@ const getOrganizations = async(req,res)=>{
 
         const orgData = await organization.find().skip((page-1)*limit).limit(limit);
         console.log(orgData)
-      if(orgData.length>0)
+      if(orgData && orgData.length>0)
       {
         return res.status(200).json({
             success :true,
             message :"Organization data fetched Succeessfully fetched",
             data : orgData
+        })
+      }
+      else
+      {
+        return res.json({
+            success :true,
+            message :"No Data found !!",
+           
         })
       }
     } catch (err){
@@ -51,8 +59,8 @@ const addOrganization = async(req,res)=>{
         }
         const {name,description,customAttributes} = req.body
         const logo = req.files.logo
-        console.log({name,description,customAttributes},logo)
-        if(!name || !description || !customAttributes || !logo)
+        console.log({name,description,customAttributes})
+        if(!name || !description || !logo)
             {
                 return res.json({
                     success : false,
@@ -72,29 +80,45 @@ const addOrganization = async(req,res)=>{
             const image = await uploadToCLoudinary(logo,process.env.cloudinaryFolderName,100,100)
             console.log("Here",image.url)
           
-           
-
+           let addOrg;
+            if(customAttributes &&  customAttributes.length>0)
+            {
+                 addOrg = await organization.create({
+                    name:name,
+                    description:description,
+                    customAttributes : customAttributes,
+                    logo : image.url
+                })
+            }
+            else
+            {
+                 addOrg = await organization.create({
+                    name:name,
+                    description:description,
+                    logo : image.url
+                })
+            }
           
 
-        const addOrg = await organization.create({
-            name:name,
-            description:description,
-             
-            logo : image.url
-        })
+       
         if(addOrg)
         {
             
-            customAttributes.map((item)=>{
-                console.log(item)
-                addOrg.customAttributes.push({title : item.title,value:item.value})
-            })
-
-            addOrg.save()
             return res.status(200).json({
                 success : true,
                   message : `Organization with name : ${name} successfully created`,
                 data : addOrg
+            })
+            
+            // customAttributes.map((item)=>{
+            //     console.log(item)
+            //     addOrg.customAttributes.push({title : item.title,value:item.value})
+            // })
+        }
+        else{
+            return res.json({
+                success : false,
+                message : `Error adding Organization ${name}`
             })
         }
           
@@ -123,7 +147,7 @@ const editOrganization = async(req,res)=>{
     const {organizationId} = req.params
     const logo = req.files.logo
 
-    if(!name || !description || !customAttributes || !organizationId || !logo)
+    if(!name || !description || !organizationId || !logo)
     {
         return res.json({
             success : false,
@@ -139,28 +163,41 @@ const editOrganization = async(req,res)=>{
     const del = await cloudinary.uploader.destroy(`${process.env.cloudinaryFolderName}/${publicId}`)
     // console.log("=======del======",findOrg.logo.split("/").at(-1).split(".")[0])
     // console.log("=======del=======",del,"========del=======")
+   
+    
     findOrg.name = name;
     findOrg.description.description;
-    findOrg.customAttributes = customAttributes
+        findOrg.customAttributes = customAttributes;
+    
     findOrg.logo = image.url;
 
 // console.log(image)
-    findOrg.save();
-
+    const result = await findOrg.save();
+if(result)
+{
     return res.status(200).json({
         success:true,
         message : "Organization deatils updated sucessfully"
     })
+}
+else
+{
+    return res.json({
+        success:false,
+        message : "Error updating organization"
+    })
+}
+    
    }
-   return res.status(500).json({
+   return res.json({
     success:false,
-    message : "Something Went wrong"
+     message : "Error updating organization"
 })
   } catch (err){
     console.log(err);
     return res.status(500).json({
         success:false,
-        message : "Eror updating organization"
+        message : "Something went wrong"
     })
   }
 
@@ -177,28 +214,54 @@ const deleteOrganization = async(req,res)=>{
             })
         }
         const {organizationId} = req.params
-
-        const branchData = await branch.find();
-
-       branchData.map((item)=>{
-        if(item.Organization===organizationId)
-        {
-            item.Organization = null
-        }
-       })
- 
-       branchData.save()
-       const departmentData = await department.find()
-
-       departmentData.map((item)=>{
-        if(item.Organization===organizationId)
-        {
-            item.Organization = null
-        }
-       })
-
+        const orgData = await organization.findById(organizationId)
+        
        
-       departmentData.save()
+       
+        if(orgData.branches && orgData.branches.length>0)
+        {
+            const branchData = await branch.find();
+            branchData.map((item)=>{
+                if(item.Organization===organizationId)
+                {
+                    item.Organization = null
+                }
+               })
+         
+               const branchResult = await branchData.save()
+               if(!branchResult)
+               {
+                return res.status(500).json({
+                    success : false,
+                    message : "Something went wrong while removing branch from organization"
+                })
+               }
+
+              
+        }
+        if(orgData.departments && orgData.departments>0)
+        {
+           
+            const departmentData = await department.find()
+            departmentData.map((item)=>{
+             if(item.Organization===organizationId)
+             {
+                 item.Organization = null
+             }
+            })
+     
+            
+            const departmentResult = departmentData.save()
+            if(!departmentResult)
+                {
+                 return res.status(500).json({
+                     success : false,
+                     message : "Something went wrong while removing department from organization"
+                 })
+                }
+        }
+        
+       
 
        const deleteOrganization = await organization.findByIdAndDelete(organizationId)
 
@@ -211,13 +274,13 @@ const deleteOrganization = async(req,res)=>{
        }
        return res.status(500).json({
         success:false,
-        message :"Something went wrong"
+        message :"Error deleting organization"
        })
     } catch(err){
         console.log(err)
         return res.status(500).json({
             success:false,
-            message :"Error deleting organization"
+            message :"Something went wrong"
            })
     }
 }

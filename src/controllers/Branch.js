@@ -27,6 +27,54 @@ const getBranch = async(req,res)=>{
         if(branchData)
         {
             return res.status(200).json({
+                success : true,
+                messsage :"Branch data fetched successfully",
+                data : branchData
+            })
+        }
+        return res.status(500).json({
+            success : false,
+            message : "Something went wrong"
+        })
+    } catch (err){
+        console.log(err)
+        return res.status(500).json({
+            success : false,
+            message : "Something went wrong"
+        })
+    }
+}
+const getBranchByOrganization = async(req,res)=>{
+    try{
+        
+        const access = req.body.accessList.includes("GET_ALL_BRANCHES")
+        if(!access)
+        {
+            return res.status().json({
+                success : false,
+                message : "Not Authorized to perform this action"
+            })
+        }
+        const {organizationId} = req.params
+        const page = parseInt(req.query.page)
+        const limit = parseInt(req.query.limit)
+        if(!page   || !limit)
+        {
+            return res.json({
+                success : false,
+                message : "Please enter all query parameters"
+            })
+        }
+       const orgData = await organization.findById(organizationId).select("branches").populate({
+        path : "branches",
+        skip : (page-1)*limit,
+        limit : limit
+       })
+        // const branchData = await branch.find().skip((page-1)*limit).limit(limit)
+        const branchData = orgData.branches
+        if(branchData)
+        {
+            return res.status(200).json({
                 success : false,
                 messsage :"Branch data fetched successfully",
                 data : branchData
@@ -274,4 +322,4 @@ const unassignOrganization = async(req,res)=>{
     }
 }
 
-module.exports = {getBranch,addBranch,editBranch,deleteBranch,assignOrganization,unassignOrganization}
+module.exports = {getBranch,getBranchByOrganization,addBranch,editBranch,deleteBranch,assignOrganization,unassignOrganization}

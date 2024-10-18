@@ -5,7 +5,7 @@ const router = express.Router()
 
 router.get("/getOrganizations/",auth,getOrganizations)
 router.post("/addOrganization",auth,addOrganization)
-router.patch("/editOrganization/:organizationId",auth,editOrganization)
+router.put("/editOrganization/:organizationId",auth,editOrganization)
 router.delete("/deleteOrganization/:organizationId",auth,deleteOrganization)
 
 
