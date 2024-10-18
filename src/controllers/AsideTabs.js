@@ -24,7 +24,7 @@ const getTabData = async(req,res)=>{
         requiredData.set("Organization",organization_Tab)
         requiredData.set("Sub Organization",branch_Tab)
         requiredData.set("Employee",employee_Tab)
-        requiredData.set("Department",)
+        requiredData.set("Department",department_Tab)
         requiredData.set("Role",role_Tab)
 
         const tabData = await asideTabs.find()

@@ -75,7 +75,7 @@ const getBranchByOrganization = async(req,res)=>{
         if(branchData)
         {
             return res.status(200).json({
-                success : false,
+                success : true,
                 messsage :"Branch data fetched successfully",
                 data : branchData
             })
