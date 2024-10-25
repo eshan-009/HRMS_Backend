@@ -2,8 +2,8 @@ const express = require("express");
 const dbConnect = require("./config/database");
 const { cloudinaryConfig } = require("./config/cloudinary");
 const fileUpload = require("express-fileupload");
-const Cors = require("cors")
-// const { createFullAccessList } = require("./controllers/getAccessList");
+const Cors = require("cors");
+
 const app = express();
 require("dotenv").config();
 

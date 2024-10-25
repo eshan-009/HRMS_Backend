@@ -92,6 +92,51 @@ const getBranchByOrganization = async(req,res)=>{
         })
     }
 }
+const getUnassignedBranches = async(req,res)=>{
+    try{
+        
+        const access = req.body.accessList.includes("GET_ALL_BRANCHES")
+        if(!access)
+        {
+            return res.status().json({
+                success : false,
+                message : "Not Authorized to perform this action"
+            })
+        }
+        
+        const page = parseInt(req.query.page)
+        const limit = parseInt(req.query.limit)
+        if(!page   || !limit)
+        {
+            return res.json({
+                success : false,
+                message : "Please enter all query parameters"
+            })
+        }
+       
+        const branchData = await branch.find({Organization :{$eq : null}}).skip((page-1)*limit).limit(limit)
+       
+       
+        if(branchData)
+        {
+            return res.status(200).json({
+                success : true,
+                messsage :"Unassigned Branch data fetched successfully",
+                data : branchData
+            })
+        }
+        return res.status(500).json({
+            success : false,
+            message : "Something went wrong"
+        })
+    } catch (err){
+        console.log(err)
+        return res.status(500).json({
+            success : false,
+            message : "Something went wrong"
+        })
+    }
+}
 const addBranch = async(req,res)=>{
     try{
         const access = req.body.accessList.includes("ADD_BRANCH")
@@ -102,9 +147,11 @@ const addBranch = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
+        console.log("================START===============")
         const {name,customAttributes}=req.body
         const {organizationId} = req.params
 
+     console.log({name,customAttributes},{organizationId})
         if(!name || ! customAttributes || !organizationId)
         {
             return res.json({
@@ -125,19 +172,24 @@ const addBranch = async(req,res)=>{
 
        const addBranch = await branch.create({
             name:name,
-            customAttributes : customAttributes
+            customAttributes : customAttributes,
+            Organization : organizationId
         })
 
         if(addBranch)
         {
             const Org = await organization.findById(organizationId)
             Org.branches.push(addBranch._id)
-            Org.save();
+           const result =  await Org.save();
 
+           if(result)
+           {
             return res.status(200).json({
                 success:true,
                 message :"Branch created successfully"
             })
+           }
+           
         }
         return res.status(500).json({
             success:true,
@@ -211,24 +263,44 @@ const deleteBranch = async(req,res)=>{
         }
         const {organizationId,branchId} = req.params
         // const organizationData = await organization.findById(organizationId)
-
+console.log({organizationId,branchId})
         const deleteBranch = await branch.findByIdAndDelete(branchId)
         if(deleteBranch)
         {
-            const organizationData = await organization.findById(organizationId)
+            console.log("AGAIN",organizationId,!organizationId)
+            console.log("HERE1111111")
+            if(organizationId!=='undefined')
+            {
+                console.log("HERE2222222")
+                const organizationData = await organization.findById(organizationId)
             const index = organizationData.branches.indexOf(branchId)
             organizationData.branches.splice(index,1)
-            organizationData.save()
+            const result = await organizationData.save()
+            if(result)
+            {
+                return res.status(200).json({
+                    success : true,
+                    message : "Branch deleted successfully"
+                })
+            }
+               
+            }
+
             return res.status(200).json({
                 success : true,
                 message : "Branch deleted successfully"
             })
+           
         }
+
+
 
         return res.status(500).json({
             success : false,
-            message : "Something went wrong"
+            message : "Something went wronggg"
         })
+
+      
 
     } catch (err){
         console.log(err)
@@ -322,4 +394,4 @@ const unassignOrganization = async(req,res)=>{
     }
 }
 
-module.exports = {getBranch,getBranchByOrganization,addBranch,editBranch,deleteBranch,assignOrganization,unassignOrganization}
+module.exports = {getBranch,getUnassignedBranches,getBranchByOrganization,addBranch,editBranch,deleteBranch,assignOrganization,unassignOrganization}

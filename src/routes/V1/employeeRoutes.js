@@ -4,7 +4,7 @@ const { auth } = require("../../middleware/auth")
 const { getUserById } = require("../../controllers/User")
 const router = express.Router()
 
-router.get("/getUserById",auth,getUserById)
+router.get("/getUserById/:userId",auth,getUserById)
 router.get("/getEmployeeData/",auth,getEmployees)
 router.get("/getEmployeeByDepartment/:departmentId/",auth,getEmployeesByDepartment)
 router.post("/createEmployee/:organizationId/:roleId",auth,addEmployee)
@@ -15,6 +15,6 @@ router.patch("/editAdditionalDetails/:userId",auth,editEmployeeAdditionalDetails
 router.post("/assignDepartment/:userId/:departmentId",auth,assignDepartmentToEmployee)
 router.post("/unAssignDepartment/:userId/:departmentId",auth,unAssignDepartmentToEmployee)
 router.delete("/deleteEmployee/:userId",auth,deleteEmployee)
-router.get("/searchEmployeeByName",getEmployeebyname)
-router.get("/getEmployeeDetailsbyPID/:pDetailId",getEmployeebyPDetailId)
+router.post("/searchEmployeeByName",auth,getEmployeebyname)
+router.get("/getEmployeeDetailsbyPID/:pDetailId",auth,getEmployeebyPDetailId)
 module.exports = router

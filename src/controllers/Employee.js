@@ -20,14 +20,25 @@ const getEmployees = async(req,res)=>{
     const page = parseInt(req.query.page)
     const limit = parseInt(req.query.limit)
 
-    const employeeData = await user.find().skip((page-1)*limit).limit(limit)
+    // const employeeData = await user.find({select:{
+    //   path : ["email","organization","personalDetails"],
+    //   populate : {
+    //     path : "personalDetails"
+    //   }
+    // } }).skip((page-1)*limit).limit(limit)
+   
+    const employeeData = await user.find()
+  .select('email organization personalDetails')
+  .populate('personalDetails')
+  .skip((page - 1) * limit)
+  .limit(limit);
 
     if(employeeData)
     {
       return res.status(200).json({
         success :true,
         message  :"Employee list fetched successfully",
-        employeeData:employeeData
+        data:employeeData
         
       })
     }
@@ -78,7 +89,7 @@ const employeeData = departmentData.employees
       return res.status(200).json({
         success :true,
         message  :"Employee list fetched successfully",
-        employeeData:employeeData
+        data:employeeData
         
       })
     }
@@ -97,7 +108,8 @@ const employeeData = departmentData.employees
 }
 const getEmployeebyname = async(req,res)=>{
   try{
-    const access = req.body.accessList.includes("GET_EMPLOYEES_BY_NAME")
+   
+    const access = req?.body?.accessList?.includes("GET_EMPLOYEES_BY_NAME")
     if(!access)
     {
         return res.status().json({
@@ -106,6 +118,7 @@ const getEmployeebyname = async(req,res)=>{
         })
     }
     const {name} = req.body
+    console.log("name",name)
     const firstName = name.split(" ")[0]
     const lastName = name.split(" ")[1]
     
@@ -163,7 +176,7 @@ const getEmployeebyPDetailId = async(req,res)=>{
         })
     }
     const {pDetailId} = req.params
-const userData = await user.find({personalDetails : pDetailId }).populate("personalDetails").exec()   
+const userData = await user.find({personalDetails : pDetailId }).select("_id").exec()   
 
     if(userData.length>0)
     {

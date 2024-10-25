@@ -57,48 +57,54 @@ const addOrganization = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
-        const {name,description,customAttributes} = req.body
+        const {name,description} = req.body
+        const customAttributes = JSON.parse(req.body.customAttributes)
         const logo = req.files.logo
-        console.log({name,description,customAttributes})
+        console.log({name,description,customAttributes,logo})
         if(!name || !description || !logo)
             {
-                return res.json({
+                return res.status(400).json({
                     success : false,
                     message : "Please fill all details"
                 })
             }
-          
+        
         const checkOrg = await organization.findOne({name:name})
            
         if(checkOrg)
             {
-                return res.json({
+                return res.status(400).json({
                     success :  false,
                     message : `Organization with name : ${name} already exist`
                 })
             }
             const image = await uploadToCLoudinary(logo,process.env.cloudinaryFolderName,100,100)
             console.log("Here",image.url)
-          
+       
            let addOrg;
             if(customAttributes &&  customAttributes.length>0)
             {
+              
                  addOrg = await organization.create({
                     name:name,
                     description:description,
                     customAttributes : customAttributes,
                     logo : image.url
                 })
+             
             }
             else
             {
+                
                  addOrg = await organization.create({
                     name:name,
                     description:description,
                     logo : image.url
                 })
+             
             }
-          
+         
+            
 
        
         if(addOrg)
@@ -220,45 +226,45 @@ const deleteOrganization = async(req,res)=>{
        
         if(orgData.branches && orgData.branches.length>0)
         {
-            const branchData = await branch.find();
-            branchData.map((item)=>{
+            const branchData = await branch.find({Organization:organizationId });
+            console.log(branchData,orgData.branches)
+            branchData.map(async(item)=>{
                 if(item.Organization===organizationId)
                 {
                     item.Organization = null
+                    const branchResult =   await branchData.save()
+                    if(!branchResult)
+                        {
+                         return res.status(500).json({
+                             success : false,
+                             message : "Something went wrong while removing branch from organization"
+                         })
+                        }
                 }
                })
-         
-               const branchResult = await branchData.save()
-               if(!branchResult)
-               {
-                return res.status(500).json({
-                    success : false,
-                    message : "Something went wrong while removing branch from organization"
-                })
-               }
-
               
         }
         if(orgData.departments && orgData.departments>0)
         {
-           
-            const departmentData = await department.find()
-            departmentData.map((item)=>{
+            console.log(orgData.departments)
+            const departmentData = await department.find({Organization:organizationId})
+            departmentData.map(async(item)=>{
              if(item.Organization===organizationId)
              {
                  item.Organization = null
+                 const departmentResult = departmentData.save()
+                 if(!departmentResult)
+                     {
+                      return res.status(500).json({
+                          success : false,
+                          message : "Something went wrong while removing department from organization"
+                      })
+                     }
              }
             })
      
             
-            const departmentResult = departmentData.save()
-            if(!departmentResult)
-                {
-                 return res.status(500).json({
-                     success : false,
-                     message : "Something went wrong while removing department from organization"
-                 })
-                }
+           
         }
         
        

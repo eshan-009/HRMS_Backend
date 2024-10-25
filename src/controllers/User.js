@@ -5,9 +5,10 @@ const bcrypt = require('bcrypt');
 const getUserById = async(req,res)=>{
     try
     {
+      const {userId} = req.params
       const {currUserId} = req.body
 
-      const userData = await user.findById(currUserId).select("role").select("personalDetails").populate({
+      const userData = await user.findById(userId ? userId : currUserId).select("role").select("personalDetails").populate({
         path : "role",
         select : "title"
       }).populate("personalDetails").exec()

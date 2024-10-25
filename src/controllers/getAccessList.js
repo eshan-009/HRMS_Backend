@@ -1,28 +1,37 @@
 const fullAccessList = require("../models/fullAccessList");
 
-const getFullAccessList = async (req, res) => {
+
+ async function getFullAccessList(req, res)  {
   try {
+   
     const access = req.body.accessList.includes("GET_ACCESS_PRIVILEGES");
+    console.log(access)
     if (!access) {
-      return res.status().json({
+      return res.status(400).json({
         success: false,
         message: "Not Authorized to perform this action",
       });
     }
+   
 
-    const data = await fullAccessList.find();
+    const accessData = await fullAccessList.find();
 
-    if (data) {
+    console.log("data--------------",accessData)
+    if (accessData) 
+      {
       return res.status(200).json({
         success: true,
         message: "Access list fetched successfully",
-        data: data,
+        data: accessData,
       });
     }
+   else
+   {
     return res.status(500).json({
       success: true,
       message: "Something went wrong",
     });
+   }
   } catch (err) {
     console.log(err);
     return res.status(500).json({
@@ -31,6 +40,9 @@ const getFullAccessList = async (req, res) => {
     });
   }
 };
+
+
+
 
 // const createFullAccessList = async (req, res) => {
 //   try {
@@ -73,7 +85,7 @@ const getFullAccessList = async (req, res) => {
 //         "REMOVE_DEPARTMENT_FROM_ORGANIZATION",
 //         "GET_ALL_EMPLOYEES",
 //         "GET_EMPLOYEES_BY_NAME",
-//         "GET_EMPLOYEES_BY_NAME",
+//         "GET_ACCESS_PRIVILEGES",
 //         "ADD_EMPLOYEE",
 //         "ADD_EMPLOYEE_PERSONAL_DETAILS",
 //         "ADD_EMPLOYEE_ADDITIONAL_DETAILS",
@@ -161,4 +173,5 @@ const getFullAccessList = async (req, res) => {
 //   }
 // };
 
-module.exports = { getFullAccessList };
+
+module.exports = {getFullAccessList}

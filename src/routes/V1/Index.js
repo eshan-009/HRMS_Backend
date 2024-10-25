@@ -1,7 +1,8 @@
 const express = require("express")
 const { getTabData } = require("../../controllers/AsideTabs")
-const { getFullAccessList } = require("../../controllers/getAccessList")
+const {getFullAccessList} = require("../../controllers/getAccessList")
 const { auth } = require("../../middleware/auth")
+
 const router = express.Router()
 
 router.use("/v1",require("./organizationRoutes"))
@@ -15,5 +16,7 @@ router.use("/v1",require("./authRoutes"))
 
 
 router.get("/v1/asideTabsData",auth,getTabData)
-router.get("/v1/fullAccessList",getFullAccessList)
+router.get("/v1/fullAccessList",auth,getFullAccessList)
+
+
 module.exports = router

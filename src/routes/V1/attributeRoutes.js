@@ -4,8 +4,8 @@ const { auth } = require("../../middleware/auth")
 const router = express.Router()
 
 router.post("/addAttribute",auth,addAttribute)
-router.patch("/editAttribute/:attributeId",auth,editAttribute)
+router.put("/editAttribute/:attributeId",auth,editAttribute)
 router.delete("/deleteAttribute/:attributeId",auth,deleteAttribute)
 
-router.get("/getCustomAttributes",auth,getAttributes)
+router.post("/getCustomAttributes",auth,getAttributes)
 module.exports = router

@@ -47,6 +47,106 @@ const getDepartment = async(req,res)=>{
     }
 }
 
+const getDepartmentByOrganization = async(req,res)=>{
+    try{
+     
+        const access = req.body.accessList.includes("GET_ALL_DEPARTMENTS")
+        if(!access)
+        {
+            return res.status().json({
+                success : false,
+                message : "Not Authorized to perform this action"
+            })
+        }
+        console.log("Here1")
+        const page = req.query.page
+        const limit = req.query.limit
+        const {organizationId} = req.params
+        if(!page || !limit)
+        {
+            return res.json({
+                success : true,
+                messsage : "Please send all query parameters"
+            })
+        }
+        console.log("Here2")
+        const orgData = await organization.findById(organizationId).select("departments").populate({
+            path : "departments",
+            skip : (page-1)*limit,
+            limit : limit
+           })
+           console.log(orgData)
+        // const departmentData= await department.find().skip((page-1)*limit).limit(limit)
+           const departmentData = orgData.departments
+        if(departmentData)
+        {
+            return res.status(200).json({
+                success : true,
+                message : "Department data fetched sucessfully",
+                data : departmentData
+            })
+        }
+
+        return res.json({
+            success : false,
+            message : "No Department found"
+        })
+    } catch (err){
+        return res.status(500).json({
+            success : false,
+            message : "Something went wrong"
+        })
+    }
+}
+
+const getUnassignedDepartment = async(req,res)=>{
+    try{
+     console.log("Here1")
+        const access = req.body.accessList.includes("GET_ALL_DEPARTMENTS")
+        if(!access)
+        {
+            return res.status().json({
+                success : false,
+                message : "Not Authorized to perform this action"
+            })
+        }
+        console.log("Here2")
+        const page = req.query.page
+        const limit = req.query.limit
+       
+        if(!page || !limit)
+        {
+            return res.json({
+                success : true,
+                messsage : "Please send all query parameters"
+            })
+        }
+        console.log("Here3")
+      
+       
+        const departmentData= await department.find({Organization :{$eq : null}}).skip((page-1)*limit).limit(limit)
+          
+        if(departmentData)
+        {
+            return res.status(200).json({
+                success : true,
+                message : "Unassigned Department data fetched sucessfully",
+                data : departmentData
+            })
+        }
+
+        return res.json({
+            success : false,
+            message : "No Department found"
+        })
+    } catch (err){
+        return res.status(500).json({
+            success : false,
+            message : "Something went wrong"
+        })
+    }
+}
+
 const createDepartment = async(req,res)=>{
     try{
         const access = req.body.accessList.includes("ADD_DEPARTMENT")
@@ -122,8 +222,8 @@ const editDepartment = async(req,res)=>{
             })
         }
         const {name,description,customAttributes} = req.body
-        const {departmentId,OrganizationId,managerId} = req.params
-if(!name || !description || !OrganizationId || !managerId || !customAttributes || !departmentId)
+        const {departmentId,managerId} = req.params
+if(!name || !description || !managerId || !customAttributes || !departmentId)
 {
     return res.json({
         success : false,
@@ -136,17 +236,20 @@ if(departmentData)
 {
 departmentData.name = name;
 departmentData.description = description;
-departmentData.Organization = OrganizationId;
+// departmentData.Organization = OrganizationId;
 departmentData.manager = managerId
 departmentData.customAttributes = customAttributes;
 
 const newData = await departmentData.save();
 
-return res.status(200).json({
-    success :true,
-    message : "Department updated successfully",
-    data : newData
-})
+if(newData)
+{
+    return res.status(200).json({
+        success :true,
+        message : "Department updated successfully",
+        data : newData
+    })
+}
 }
 
 
@@ -404,6 +507,6 @@ const unassignOrganization = async(req,res)=>{
     }
 }
 
-module.exports = {getDepartment,createDepartment,
+module.exports = {getDepartment,getDepartmentByOrganization,getUnassignedDepartment,createDepartment,
     editDepartment,deleteDepartment,assignBranch,
     assignOrganization,unassignBranch,unassignOrganization}
