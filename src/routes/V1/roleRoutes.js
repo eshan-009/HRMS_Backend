@@ -5,7 +5,7 @@ const router = express.Router()
 
 
 router.post("/addRole",auth,addRole)
-router.patch("/editRole/:roleId",auth,editRole)
+router.put("/editRole/:roleId",auth,editRole)
 router.delete("/deleteRole/:roleId",auth,deleteRole)
 router.get("/getRoleData/",auth,getRolesData)
 module.exports = router

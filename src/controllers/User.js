@@ -7,12 +7,30 @@ const getUserById = async(req,res)=>{
     {
       const {userId} = req.params
       const {currUserId} = req.body
+      // console.log(currUserId,typeof userId)
+      let userData;
+      // console.log("here1")
+      if(userId!=="null")
+      {
+        console.log("here2")
+        userData =  await user.findById(userId).select("role").select("personalDetails").populate({
+          path : "role",
+          select : "title"
+        }).populate("personalDetails").exec()
+      }
+      else
+      {
+        // console.log("here3")
+        userData = await user.findById(currUserId).select("role").select("personalDetails").populate({
+          path : "role",
+          select : "title"
+        }).populate("personalDetails").exec()
+      }
+  
 
-      const userData = await user.findById(userId ? userId : currUserId).select("role").select("personalDetails").populate({
-        path : "role",
-        select : "title"
-      }).populate("personalDetails").exec()
+   
 
+      console.log(userData)
       if(userData)
       {
         return res.status(200).json({
