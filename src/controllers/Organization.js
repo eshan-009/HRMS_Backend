@@ -18,17 +18,33 @@ const getOrganizations = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
-       const page=parseInt(req.query.page)
-       const limit=parseInt(req.query.limit)
+       const page=req.query.page
+       const limit=req.query.page
+       
+        console.log("============================>>>>",page,limit,"<<<<<===========================")
+        if(page=="All")
+        {
+            const orgData = await organization.find()
 
-        const orgData = await organization.find().skip((page-1)*limit).limit(limit);
+            return res.status(200).json({
+                success :true,
+                message :"ALL Organization data fetched Succeessfully fetched",
+                data : orgData
+             
+            })
+        }
+      
+        const orgData = await organization.find().skip((page-1)*limit).limit(limit+1);
+
+        const isLast = orgData.length>limit ? false : true
         console.log(orgData)
       if(orgData && orgData.length>0)
       {
         return res.status(200).json({
             success :true,
             message :"Organization data fetched Succeessfully fetched",
-            data : orgData
+            data : orgData.length>limit ?  orgData.slice(0,orgData.length-1) : orgData,
+            isLast : isLast
         })
       }
       else
@@ -149,36 +165,39 @@ const editOrganization = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
-    const {name,description,customAttributes} = req.body
+    const {name,description} = req.body
+    const customAttributes = JSON.parse(req.body.customAttributes)
+    console.log("LLLLLLLLLLL",{name,description})
     const {organizationId} = req.params
-    const logo = req.files.logo
+    const logo = req?.files?.logo ?? null
 
-    if(!name || !description || !organizationId || !logo)
+    if(!name || !description || !organizationId)
     {
         return res.json({
             success : false,
             message : "Please fill all details"
         })
     }
-    const image = await uploadToCLoudinary(logo,process.env.cloudinaryFolderName,100,100)
+    const image =logo && await uploadToCLoudinary(logo,process.env.cloudinaryFolderName,100,100)
 
     const findOrg = await organization.findById(organizationId);
    if(findOrg)
    {
-    const publicId = findOrg.logo.split("/").at(-1).split(".")[0]
-    const del = await cloudinary.uploader.destroy(`${process.env.cloudinaryFolderName}/${publicId}`)
+    const publicId = logo && findOrg.logo.split("/").at(-1).split(".")[0]
+    const del = logo && await cloudinary.uploader.destroy(`${process.env.cloudinaryFolderName}/${publicId}`)
     // console.log("=======del======",findOrg.logo.split("/").at(-1).split(".")[0])
     // console.log("=======del=======",del,"========del=======")
    
     
     findOrg.name = name;
-    findOrg.description.description;
+    findOrg.description=description;
         findOrg.customAttributes = customAttributes;
     
-    findOrg.logo = image.url;
+        logo && ( findOrg.logo = image.url);
 
 // console.log(image)
     const result = await findOrg.save();
+    console.log("result",result)
 if(result)
 {
     return res.status(200).json({
@@ -211,6 +230,7 @@ else
 
 const deleteOrganization = async(req,res)=>{
     try{
+      
         const access = req.body.accessList.includes("DELETE_ORGANIZATION")
         if(!access)
         {
@@ -219,6 +239,8 @@ const deleteOrganization = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
+
+       
         const {organizationId} = req.params
         const orgData = await organization.findById(organizationId)
         
@@ -247,7 +269,9 @@ const deleteOrganization = async(req,res)=>{
         if(orgData.departments && orgData.departments>0)
         {
             console.log(orgData.departments)
+            
             const departmentData = await department.find({Organization:organizationId})
+
             departmentData.map(async(item)=>{
              if(item.Organization===organizationId)
              {

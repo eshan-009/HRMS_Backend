@@ -55,7 +55,7 @@ const addRole = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
-        const {title,roleAccessList} = req.body
+        const {title,roleAccessList,selectedCategories} = req.body
 
         console.log({title,roleAccessList} )
 
@@ -71,7 +71,8 @@ if(roleData.length>0)
 
 const createRole = await roles.create({
     title : title,
-    accessList:roleAccessList
+    accessList:roleAccessList,
+    selectedCategories : selectedCategories
 })
 
 if(createRole)
@@ -110,7 +111,7 @@ const editRole = async(req,res)=>{
         })
     }
     const {roleId} = req.params
-    const {title,roleAccessList} = req.body
+    const {title,roleAccessList,selectedCategories} = req.body
     console.log({roleId},{title,roleAccessList})
     const roleData = await roles.findById(roleId)
 
@@ -123,6 +124,7 @@ const editRole = async(req,res)=>{
     }
     roleData.title = title;
     roleData.accessList = roleAccessList
+    roleData.selectedCategories = selectedCategories
     const result = await roleData.save()
 if(result)
 {

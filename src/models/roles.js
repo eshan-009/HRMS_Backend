@@ -8,7 +8,12 @@ const roleSchema = new mongoose.Schema({
       {
           type:String
       }
-   ]
+   ],
+   selectedCategories:[
+      {
+          type:String
+      }
+   ],
 
  
 })

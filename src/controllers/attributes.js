@@ -1,4 +1,8 @@
 const attributeSchema = require("../models/attributeSchema")
+const branch = require("../models/branch")
+const department = require("../models/department")
+const organization = require("../models/organization")
+const user = require("../models/user")
 
 const getAttributes = async(req,res)=>{
     try{
@@ -188,24 +192,103 @@ const deleteAttribute = async(req,res)=>{
         if((parent==="Employee" && !EmployeeAccess ) || (parent==="Organization" && !organizationAccess) || (parent==="SubOrganization" && !branchAccess) 
             || (parent==="Department" && !departmentAccess) )
         {
-            return res.status().json({
+            return res.status(400).json({
                 success : false,
                 message : "Not Authorized to perform this action"
             })
         }
         // let bool = false;
        const attributeData =  await attributeSchema.findOne({parent:parent})
-       console.log("attributeData",attributeData)
+    //    console.log("attributeData",attributeData)
        attributeData.attributeList.map(async(item)=>{
         if(item._id.equals(attributeId))
         {
             const index = attributeData.attributeList.indexOf(item)
+
+            console.log("BEFORE",attributeData.attributeList[index],"\nNEWNENWEN",index)
+              
+            switch(parent){
+                case "Employee" : 
+             
+                const userData = await user.find().select("personalDetails").populate("personalDetails").exec()
+                userData.length>0 && userData.forEach(async(item)=>{
+               
+                   const updatedCustomAttributes =  item?.personalDetails?.customAttributes.filter((elem)=>elem.title!==attributeData.attributeList[index]?.title)
+                   item.personalDetails.customAttributes = updatedCustomAttributes; 
+
+                   const result = await item.personalDetails.save()
+                 
+                })
+                    break ;
+
+                case "Organization" : 
+                    const orgData = await organization.find().select("customAttributes").exec()
+                    orgData.length>0 && orgData.forEach(async(item)=>{
+
+                        const updatedCustomAttributes = item?.customAttributes.filter((elem)=>elem.title!==attributeData.attributeList[index]?.title)
+                        item.customAttributes = updatedCustomAttributes
+                       const result = await item.save()
+                        if(!result)
+                            {
+                                return res.json({
+                                    message : "Failed to delete from userData"
+                                })
+                            }
+                    })
+                   
+
+                break ;
+                case "SubOrganization" : 
+
+                const subOrgData = await branch.find().select("customAttributes").exec()
+                subOrgData.length>0 && subOrgData.forEach(async(item)=>{
+
+                    const updatedCustomAttributes = item?.customAttributes.filter((elem)=>elem.title!==attributeData.attributeList[index]?.title)
+                    item.customAttributes = updatedCustomAttributes
+                   const result = await item.save()
+                   console.log("HHHH",result)
+                    if(!result)
+                        {
+                            return res.json({
+                                message : "Failed to delete from userData"
+                            })
+                        }
+                })
+
+                break ;
+                case "Department" : 
+                const departmentData = await department.find().select("customAttributes").exec()
+                departmentData.length>0 && departmentData.forEach(async(item)=>{
+
+                    const updatedCustomAttributes = item?.customAttributes.filter((elem)=>elem.title!==attributeData.attributeList[index]?.title)
+                    item.customAttributes = updatedCustomAttributes
+                   const result = await item.save()
+                   console.log("HHHH",result)
+                    if(!result)
+                        {
+                            return res.json({
+                                message : "Failed to delete from userData"
+                            })
+                        }
+                })
+                break ;
+                
+            }
+            // if(!switchResult)
+            //     {
+            //         return res.json({
+            //             message : "Failed to delete from userData"
+            //         })
+            //     }
+
+            
             attributeData.attributeList.splice(index,1)
             // bool = true;
             const result = await attributeData.save()
 
             if(result)
             {
+                
                 return res.status(200).json({
                     success : true,
                     message : "Attribute Deleted"

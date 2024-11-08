@@ -1,5 +1,5 @@
 
-const skills = require("../models/skills")
+const skills = require("../models/skill")
 
 
 

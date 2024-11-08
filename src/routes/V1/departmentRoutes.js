@@ -9,7 +9,7 @@ router.get("/getUnassignedDepartment",auth,getUnassignedDepartment)
 
 
 router.post("/addDepartment/:OrganizationId/:managerId",auth,createDepartment)
-router.patch("/editDepartment/:managerId/:departmentId",auth,editDepartment)
+router.put("/editDepartment/:managerId/:departmentId",auth,editDepartment)
 router.delete("/deleteDepartment/:departmentId",auth,deleteDepartment)
 router.patch("/assignBranch/:departmentId/:branchId",auth,assignBranch)
 router.patch("/unAssignBranch/:departmentId/:branchId",auth,unassignBranch)

@@ -4,6 +4,7 @@ const { cloudinaryConfig } = require("./config/cloudinary");
 const fileUpload = require("express-fileupload");
 const Cors = require("cors");
 
+
 const app = express();
 require("dotenv").config();
 
@@ -20,4 +21,5 @@ dbConnect();
 app.listen(PORT,()=>{
     console.log("Server Connected Successfully")
 })
+
 

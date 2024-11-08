@@ -31,7 +31,7 @@ try{
             const accessList = userData.role.accessList
             req.body.currUserId = currUserId
             req.body.accessList = accessList
-            // console.log(accessList)
+        console.log("HERE3")
             
     next()
 } catch  (err){

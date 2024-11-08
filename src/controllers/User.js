@@ -9,7 +9,7 @@ const getUserById = async(req,res)=>{
       const {currUserId} = req.body
       // console.log(currUserId,typeof userId)
       let userData;
-      // console.log("here1")
+      console.log("here1",userId)
       if(userId!=="null")
       {
         console.log("here2")
@@ -56,47 +56,49 @@ const getUserById = async(req,res)=>{
     }
 }
 
-// const createUser = async(req,res)=>{
-//     try{
-//         const {email,password,role} =req.body
-//         const {organizationId} = req.params
+const createUser = async(req,res)=>{
+    try{
+        const {email,password,role} = {email : "EshanSharma@hmail.com",password : "apple",role : "670e8149a59d7666b5918954"}
+        const {organizationId} = {organizationId:"670633b03188966b599d682c"}
 
-//         const userData = await user.find({email:email})
-//         if(userData.length>0)
-//         {
-//             return res.json({
-//                 success : false,
-//                 message : "User already exist"
-//             })
-//         }
-//         let hashedPassword = await bcrypt.hash(password,10)
+        const userData = await user.find({email:email})
+        if(userData.length>0)
+        {
+          console.log("ALREADY EXIST")
+            // return res.json({
+            //     success : false,
+            //     message : "User already exist"
+            // })
+        }
+        let hashedPassword = await bcrypt.hash(password,10)
 
-//         const addUser = await user.create({
-//             email : email,
-//             password : hashedPassword,
-//             organization : organizationId,
-//             role : role
-//         })
+        const addUser = await user.create({
+            email : email,
+            password : hashedPassword,
+            organization : organizationId,
+            role : role
+        })
 
-//         if(addUser)
-//         {
-//           return  res.status(200).json({
-//                 success : true,
-//                 message : `${email} is registered successfully`
-//             })
-//         }
-//         res.status(500).json({
-//             success : false,
-//             message : `Something went wrong`
-//         })
-//     } catch (err){
-//         console.log(err);
-//         res.status(500).json({
-//             success : false,
-//             message : `Error registering user`
-//         })
-//     }
-// }
+        if(addUser)
+        {
+          console.log("RESGITERED SUCCESSFULLY")
+          // return  res.status(200).json({
+          //       success : true,
+          //       message : `${email} is registered successfully`
+          //   })
+        }
+        // res.status(500).json({
+        //     success : false,
+        //     message : `Something went wrong`
+        // })
+    } catch (err){
+        console.log(err);
+        res.status(500).json({
+            success : false,
+            message : `Error registering user`
+        })
+    }
+}
 
 // const addPersonalDetails = async(req,res)=>{
 //     try{
@@ -114,7 +116,7 @@ const getUserById = async(req,res)=>{
 //     }
 // }
 
-module.exports = {getUserById}
+module.exports = {getUserById,createUser}
 
 
 

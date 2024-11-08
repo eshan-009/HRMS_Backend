@@ -6,6 +6,12 @@ const user = require("../models/user");
 const { deleteFromCloudinary } = require("../utilities/cloudinaryDelete");
 const { uploadToCLoudinary } = require("../utilities/cloudinaryUploader");
 const bcrypt = require("bcrypt")
+const cloudinary = require('cloudinary').v2
+
+
+
+
+
 
 const getEmployees = async(req,res)=>{
   try{
@@ -28,17 +34,19 @@ const getEmployees = async(req,res)=>{
     // } }).skip((page-1)*limit).limit(limit)
    
     const employeeData = await user.find()
-  .select('email organization personalDetails')
-  .populate('personalDetails')
+  .select('email organization personalDetails additionalDetails')
+  .populate('personalDetails additionalDetails')
   .skip((page - 1) * limit)
-  .limit(limit);
+  .limit(limit+1);
+const isLast = employeeData.length>limit ? false : true
 
     if(employeeData)
     {
       return res.status(200).json({
         success :true,
         message  :"Employee list fetched successfully",
-        data:employeeData
+        data:employeeData.length>limit ? employeeData.slice(0,employeeData.length-1) : employeeData,
+        isLast : isLast
         
       })
     }
@@ -76,20 +84,24 @@ const getEmployeesByDepartment = async(req,res)=>{
       select : "personalDetails",
       options : {
         skip : (page-1)*limit,
-        limit : limit
+        limit : limit+1
       },
       populate :{
         path : "personalDetails"
       }
     }).exec()
 
+  
+
 const employeeData = departmentData.employees
+const isLast = employeeData.length>limit ? false : true
     if(employeeData)
     {
       return res.status(200).json({
         success :true,
         message  :"Employee list fetched successfully",
-        data:employeeData
+        data: employeeData.length>limit ? employeeData.slice(0,employeeData.length-1) : employeeData,
+        isLast : isLast
         
       })
     }
@@ -228,7 +240,7 @@ const addEmployee = async (req,res) => {
       });
     }
     let hashedPassword = await bcrypt.hash(password,10)
-    const addEmployee = user.create({
+    const addEmployee = await user.create({
       email: email,
       password: hashedPassword,
       organization: organizationId,
@@ -239,7 +251,8 @@ const addEmployee = async (req,res) => {
     {
       return  res.status(200).json({
         success : true,
-        message : `${email} is registered successfully`
+        message : `${email} is registered successfully`,
+        data : addEmployee._id
     })
     }
 
@@ -269,40 +282,40 @@ const addEmployeePersonalDetails = async (req,res) => {
     const {
       firstName,
       lastName,
-      age,
-      gender,
-      department,
-      dateOfBirth,
-      skills,
+      departmentId,
       designation,
-      customAttributes
     } = req.body;
+
+    const skills = req.body.skills!=="undefined" ? JSON.parse(req.body?.skills) : ""
+    const customAttributes = JSON.parse(req.body.customAttributes)
+
+    console.log("DepartmentId",departmentId)
+ 
+    
+    const { userId } = req.params;
+    const profilePicture = req.files.profilepicture;
 
     console.log({
       firstName,
       lastName,
-      age,
-      gender,
-      department,
-      dateOfBirth,
+      departmentId,
       skills,
       designation,
-      customAttributes
+      customAttributes,
+      userId,
+      profilePicture
     })
-    const { userId } = req.params;
-    const profilePicture = req.files.profilepicture;
+
+
 
     if (
       !firstName ||
       !lastName ||
-      !age ||
-      !gender ||
       !department ||
-      !customAttributes ||
-      !dateOfBirth ||
-      !skills ||
-      !designation 
-      || !profilePicture
+      !customAttributes 
+    //  || !skills ||
+      // !designation 
+      || !profilePicture || !userId
     ) {
       return res.json({
         success: false,
@@ -316,27 +329,38 @@ const addEmployeePersonalDetails = async (req,res) => {
       100,
       100
     );
+console.log("DPDPDPDPDP",dp.url)
 
     const employeePersonal = await profile.create({
       firstName: firstName,
       lastName: lastName,
-      age: age,
-      gender: gender,
       profilePicture: dp.url,
       employeeCode: `${
         firstName[0] + firstName[1] + firstName.at(-1) + Date.now()
       }`,
-      department: department,
+      department: departmentId,
       customAttributes: customAttributes,
-      dateOfBirth: dateOfBirth,
-      skills: skills,
-      designation: designation,
+      // skills: skills,
+      // designation: designation,
     });
 
     const userData = await user.findById(userId);
     userData.personalDetails = employeePersonal._id;
     const result = userData.save()
-    if(result)
+  
+    const departmentData = await department.findById(departmentId).select("employees").exec()
+    console.log("departmentDatagggggggggggggggggggggggggg",departmentData)
+    const index = departmentData && departmentData.employees.indexOf(userData._id)
+    console.log("indexxxxxxxxxxxxx",index,!index,userData._id)
+    if(index == -1)
+    {
+      console.log("HERE DEPPP",departmentData.employees,"jhshjsjhbscscjs",!index)
+      departmentData.employees && departmentData.employees.push(userData._id)
+      console.log("HERE DEPPP",departmentData.employees)
+    }
+    const result2 =  departmentData.save()
+
+    if(result && result2)
     {
       return res.status(200).json({
         success: true,
@@ -461,31 +485,35 @@ const editEmployeePersonalDetails = async(req,res)=>{
         const {
             firstName,
             lastName,
-            age,
-            gender,
             employeeCode,
             department,
-            aadharNumber,
-            dateOfBirth,
-            customAttributes,
+        
             skills,
             designation,
           } = req.body;
-          console.log(req.body)
+          
+          const     customAttributes = JSON.parse(req.body?.customAttributes)
           const { userId } = req.params;
-          const newImage = req.files.newImage;
+          const newImage = req?.files?.newImage;
+
+          console.log( firstName,
+            lastName,
+            employeeCode,
+            department,
+        
+            skills,
+            designation,userId,customAttributes,newImage)
 
           if (
             !firstName ||
             !lastName ||
-            !age ||
-            !gender ||
+       
             !department ||
-            !aadharNumber ||
-            !dateOfBirth ||
-          !customAttributes||
-            !skills ||
-            !designation || !newImage || !userId || !personalData
+          
+          !customAttributes
+          //  || !skills ||
+            // !designation  
+            || !userId 
           ) {
             return res.json({
               success: false,
@@ -495,7 +523,8 @@ const editEmployeePersonalDetails = async(req,res)=>{
       
      
 
-        const newDP = await uploadToCLoudinary(newImage,process.env.cloudinaryFolderName,100,100)
+        const newDP = newImage && await uploadToCLoudinary(newImage,process.env.cloudinaryFolderName,100,100)
+
         const userData = await user.findById(userId).select("personalDetails").populate("personalDetails").exec();
         if(!userData)
         {
@@ -506,10 +535,10 @@ const editEmployeePersonalDetails = async(req,res)=>{
         }
         const personalData = userData.personalDetails;
 
-        const publicId =  `${process.env.cloudinaryFolderName}/${personalData.profilePicture.split("/").at(-2)}`
-        console.log("====PUBLIC ID---->>>",personalData)
-        const deleteFromCloudinary = await cloudinary.uploader.destroy(publicId)
-        if(!deleteFromCloudinary)
+        const publicId =   newImage && `${process.env.cloudinaryFolderName}/${personalData.profilePicture.split("/").at(-2)}`
+        console.log("====PUBLIC ID---->>>",personalData,publicId)
+        const deleteFromCloudinary =  newImage && await cloudinary.uploader.destroy(publicId)
+        if(newImage && !deleteFromCloudinary)
         {
           return res.status(500).json({
             success : false,
@@ -518,15 +547,15 @@ const editEmployeePersonalDetails = async(req,res)=>{
         }
         personalData.firstName = firstName
         personalData.lastName = lastName
-        personalData.age = age
-        personalData.gender = gender
+  
+        
         personalData.department = department
-        personalData.aadharNumber = aadharNumber
+      
         personalData.employeeCode=employeeCode
-        personalData.profilePicture = newDP.url
-        personalData.dateOfBirth = dateOfBirth
-        personalData.skills = skills
-        personalData.designation = designation
+        newImage && (personalData.profilePicture = newDP.url)
+   
+        // personalData.skills = skills
+        // personalData.designation = designation
         personalData.customAttributes = customAttributes
 
         const result = personalData.save()
@@ -580,26 +609,28 @@ const editEmployeeAdditionalDetails = async (req, res) => {
     console.log(req.body)
 
       if (
-        !contact ||
-        !relationShip ||
-        !addressType ||
-        !propertyNumber ||
-        !city ||
-        !zipCode ||
-        !state ||
-        !country ||
-        !bankName ||
-        !accountNumber ||
-        !ifscCode ||
-        !bankBranch
+        !userId 
+        // !contact ||
+        // !relationShip ||
+        // !addressType ||
+        // !propertyNumber ||
+        // !city ||
+        // !zipCode ||
+        // !state ||
+        // !country ||
+        // !bankName ||
+        // !accountNumber ||
+        // !ifscCode ||
+        // !bankBranch
       ) {
         return res.json({
           success: false,
-          message: "Please Fill all details",
+          message: "Please Fill All details",
         });
       }
-
-    const userData = await user.findById(userId).select("additionalDetails").populate("additionalDetails").exec();
+      var userData;
+     userData = await user.findById(userId).select("additionalDetails").populate("additionalDetails").exec();
+    
 if(!userData)
 {
     return res.json({
@@ -607,23 +638,43 @@ if(!userData)
         message:"User does not exist"
     })
 }
+
+if(!userData.additionalDetails)
+{
+  console.log("HEREEEEEE",userData.additionalDetails)
+  const result = await additionalDetails.create({})
+  if(!result)
+  {
+    
+    return res.json({
+      success:false,
+      message:"Some thing went wrong"
+  })
+  
+  }
+  else
+  {
+    userData.additionalDetails = result._id
+    await userData.save() && (userData = await user.findById(userId).select("additionalDetails").populate("additionalDetails").exec())
+  }
+}
   
 
-    const addOnDetails = userData.additionalDetails;
+    const addOnDetails = userData?.additionalDetails ;
 
 
-    addOnDetails.emergencyContact.contact = contact 
-    addOnDetails.emergencyContact.relationShip = relationShip
-    addOnDetails.addressDetails.addressType = addressType
-    addOnDetails.addressDetails.propertyNumber =propertyNumber
-    addOnDetails.addressDetails.city = city
-    addOnDetails.addressDetails.zipCode = zipCode
-    addOnDetails.addressDetails.state = state
-    addOnDetails.addressDetails.country = country
-    addOnDetails.bankDetails.bankName = bankName
-    addOnDetails.bankDetails.accountNumber = accountNumber
-    addOnDetails.bankDetails.ifscCode = ifscCode
-    addOnDetails.bankDetails.bankBranch = bankBranch
+    contact && (addOnDetails.emergencyContact.contact = contact) 
+    relationShip && (addOnDetails.emergencyContact.relationShip = relationShip)
+    addressType && (addOnDetails.addressDetails.addressType = addressType)
+    propertyNumber && (addOnDetails.addressDetails.propertyNumber =propertyNumber)
+    city && (addOnDetails.addressDetails.city = city)
+    zipCode && (addOnDetails.addressDetails.zipCode = zipCode)
+    state && (addOnDetails.addressDetails.state = state)
+    country && (addOnDetails.addressDetails.country = country)
+    bankName && (addOnDetails.bankDetails.bankName = bankName)
+    accountNumber && (addOnDetails.bankDetails.accountNumber = accountNumber)
+    ifscCode && (addOnDetails.bankDetails.ifscCode = ifscCode)
+    bankBranch && (addOnDetails.bankDetails.bankBranch = bankBranch)
 
     const result =  await addOnDetails.save();
 
@@ -632,7 +683,7 @@ if(result)
 {
   return res.status(200).json({
     success : true,
-    message : "Personal details edited successfully",
+    message : "Additional details edited successfully",
   
 })
 }
@@ -668,27 +719,43 @@ const deleteEmployee = async(req,res)=>{
           message :"User Id required"
         })
       }
+
       const userData = await user.findById(userId).select("additionalDetails personalDetails").populate("personalDetails").exec()  
-      const departmentId = userData.personalDetails.department
+      const departmentId = userData?.personalDetails?.department
       const departmentData = await department.findById(departmentId)
-      const found = departmentData.employees.find((item)=>item.equals(userData._id))
+
+      const found = departmentData?.employees.find((item)=>item.equals(userData._id))
+      
       if(found)
       {
         const index = departmentData.employees.indexOf(found)
-        departmentData.employees.splice(index,1)
+        departmentData?.employees.splice(index,1)
       }
 
-  const delFromDepartment = await departmentData.save()
-   const deleteProfile =  await profile.findByIdAndDelete(userData.personalDetails)
-   const deleteAddOn =  await additionalDetails.findByIdAndDelete(userData.additionalDetails)
-   const deleteUser =  await user.findByIdAndDelete(userId)
+  const delFromDepartment = departmentData ? await departmentData.save() : true
 
-   if(deleteProfile && deleteAddOn && deleteUser && delFromDepartment)
+
+   const deleteProfile = userData.personalDetails ? await profile.findByIdAndDelete(userData.personalDetails) : true
+
+
+   const deleteAddOn =  userData.additionalDetails ? await additionalDetails.findByIdAndDelete(userData.additionalDetails) : true
+
+
+
+ 
+
+   if(deleteProfile && deleteAddOn && delFromDepartment)
    {
-    return res.status(200).json({
-      success : true,
-      message : "Employee Deleted Successfully"
-  })
+    const deleteUser =  await user.findByIdAndDelete(userId)
+
+    if(deleteUser)
+    {
+      return res.status(200).json({
+        success : true,
+        message : "Employee Deleted Successfully"
+    })
+    }
+    
    }
    return res.status(500).json({
     success : false,
@@ -773,6 +840,7 @@ const unAssignDepartmentToEmployee = async(req,res)=>{
         })
     }
     const {userId,departmentId} = req.params
+    console.log({userId,departmentId})
       if(!userId || !departmentId)
       {
         return res.json({
@@ -782,8 +850,9 @@ const unAssignDepartmentToEmployee = async(req,res)=>{
       }
 
       const userData = await user.findById(userId).select("personalDetails").populate("personalDetails").exec();
+   
       const departmentData = await department.findById(departmentId)
-
+      console.log(departmentData)
       if(userData && departmentData)
       {
         userData.personalDetails.department = null

@@ -11,6 +11,7 @@ const getTabData = async(req,res)=>{
         const branch_Tab = req.body.accessList.includes("GET_BRANCH_TAB")
         const department_Tab = req.body.accessList.includes("GET_DEPARTMENT_TAB")
         const role_Tab = req.body.accessList.includes("GET_ROLE_TAB")
+        const attendence_Tab = req.body.accessList.includes("GET_ATTENDENCE_DATA")
 
         if( !employee_Tab && !organization_Tab && !branch_Tab && !department_Tab )
         {
@@ -26,6 +27,7 @@ const getTabData = async(req,res)=>{
         requiredData.set("Employee",employee_Tab)
         requiredData.set("Department",department_Tab)
         requiredData.set("Role",role_Tab)
+        requiredData.set("Role",attendence_Tab)
 
         const tabData = await asideTabs.find()
         let filteredTabData = tabData; 
@@ -36,7 +38,7 @@ const getTabData = async(req,res)=>{
                 filteredTabData = filteredTabData.filter((item)=>item.label!==key)
             }
         }
-       
+       console.log("00000000000000000>>>>>>>>>>>>>>>>>>",filteredTabData,"000000000000000000<<<<<<<<<<<<<<<<<<<<<<<")
         return res.status(200).json({
             success : true,
             message : "Tab Data fetched Successfully",
@@ -51,6 +53,8 @@ const getTabData = async(req,res)=>{
         })
     }
 }
+
+
 
 
 module.exports = {getTabData}
@@ -128,6 +132,21 @@ module.exports = {getTabData}
 //                 }
 //             ]
 //         })
+
+// const createTabData6 = await asideTabs.create({
+//     label : "Attendence",
+//     children : [
+//         {
+//             label : "Configure Shift Timings",
+//         }
+//     ]
+// })
     
     
 //     }
+
+
+
+
+
+

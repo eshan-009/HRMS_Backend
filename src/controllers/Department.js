@@ -59,9 +59,11 @@ const getDepartmentByOrganization = async(req,res)=>{
             })
         }
         console.log("Here1")
-        const page = req.query.page
-        const limit = req.query.limit
+        const page = parseInt(req.query.page)
+        const limit = parseInt(req.query.limit)
+
         const {organizationId} = req.params
+        console.log("============================>>>>",page,limit,"<<<<<===========================")
         if(!page || !limit)
         {
             return res.json({
@@ -73,17 +75,20 @@ const getDepartmentByOrganization = async(req,res)=>{
         const orgData = await organization.findById(organizationId).select("departments").populate({
             path : "departments",
             skip : (page-1)*limit,
-            limit : limit
+            limit : limit+1
            })
            console.log(orgData)
         // const departmentData= await department.find().skip((page-1)*limit).limit(limit)
            const departmentData = orgData.departments
+
+           const isLast = departmentData.length>limit ? false : true 
         if(departmentData)
         {
             return res.status(200).json({
                 success : true,
                 message : "Department data fetched sucessfully",
-                data : departmentData
+                data : departmentData.length>limit ? departmentData.slice(0,departmentData.length-1) : departmentData,
+                isLast: isLast
             })
         }
 
@@ -111,8 +116,8 @@ const getUnassignedDepartment = async(req,res)=>{
             })
         }
         console.log("Here2")
-        const page = req.query.page
-        const limit = req.query.limit
+        const page = parseInt(req.query.page)
+        const limit = parseInt(req.query.limit)
        
         if(!page || !limit)
         {
@@ -121,17 +126,21 @@ const getUnassignedDepartment = async(req,res)=>{
                 messsage : "Please send all query parameters"
             })
         }
-        console.log("Here3")
+    
       
        
-        const departmentData= await department.find({Organization :{$eq : null}}).skip((page-1)*limit).limit(limit)
-          
+        const departmentData= await department.find({Organization : null}).skip((page-1)*limit).limit(limit+1).exec()
+        // .skip((page-1)*limit).limit(limit+1).lean().exec()
+        const isLast = departmentData.length>limit ? false : true
+
+        console.log("===========================DEPP=>>>>",page,limit,isLast,departmentData.length,"<<<<<===========================")
         if(departmentData)
         {
             return res.status(200).json({
                 success : true,
                 message : "Unassigned Department data fetched sucessfully",
-                data : departmentData
+                data : departmentData.length>limit ? departmentData.slice(0,departmentData.length-1) :departmentData,
+                isLast : isLast
             })
         }
 
@@ -346,6 +355,7 @@ const assignBranch = async(req,res)=>{
         const {departmentId,branchId}=req.params
         const branchData = await branch.findById(branchId);
         const departmentData = await department.findById(departmentId)
+        console.log({departmentId,branchId},branchData,departmentData)
         if(departmentData && branchData)
         {
             departmentData.branch = branchData._id;
@@ -476,7 +486,7 @@ const unassignOrganization = async(req,res)=>{
         const {departmentId,organizationId}=req.params
         const departmentData = await department.findById(departmentId)
         const organizationData = await organization.findById(organizationId)
-
+      
        if(departmentData && organizationData)
        {
         departmentData.Organization = null

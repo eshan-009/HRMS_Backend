@@ -68,16 +68,19 @@ const getBranchByOrganization = async(req,res)=>{
        const orgData = await organization.findById(organizationId).select("branches").populate({
         path : "branches",
         skip : (page-1)*limit,
-        limit : limit
+        limit : limit+1
        })
         // const branchData = await branch.find().skip((page-1)*limit).limit(limit)
         const branchData = orgData.branches
+        const isLast =  branchData.length>limit ? false : true
+
         if(branchData)
         {
             return res.status(200).json({
                 success : true,
                 messsage :"Branch data fetched successfully",
-                data : branchData
+                data : branchData.length>limit ? branchData.slice(0,branchData.length-1) : branchData,
+                isLast : isLast
             })
         }
         return res.status(500).json({
@@ -106,6 +109,7 @@ const getUnassignedBranches = async(req,res)=>{
         
         const page = parseInt(req.query.page)
         const limit = parseInt(req.query.limit)
+       
         if(!page   || !limit)
         {
             return res.json({
@@ -114,15 +118,18 @@ const getUnassignedBranches = async(req,res)=>{
             })
         }
        
-        const branchData = await branch.find({Organization :{$eq : null}}).skip((page-1)*limit).limit(limit)
-       
+        const branchData = await branch.find({Organization :{$eq : null}}).skip((page-1)*limit).limit(limit+1)
+
+        const isLast = branchData.length>limit ? false : true
+        console.log("=============START========================",branchData.length,limit,isLast,branchData)
        
         if(branchData)
         {
             return res.status(200).json({
                 success : true,
                 messsage :"Unassigned Branch data fetched successfully",
-                data : branchData
+                data : branchData.length>1 ? branchData.slice(0,branchData.length-1) :branchData ,
+                isLast : isLast
             })
         }
         return res.status(500).json({
@@ -214,8 +221,11 @@ const editBranch = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
+
         const {name,customAttributes}=req.body
         const {branchId} = req.params
+
+        console.log("HERERERERERERERREREEEEEEEEEEEEEEEEEE",{name,customAttributes},{branchId})
         if(!name  || ! customAttributes || !branchId)
         {
             return res.json({
