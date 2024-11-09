@@ -211,12 +211,19 @@ const deleteAttribute = async(req,res)=>{
                 case "Employee" : 
              
                 const userData = await user.find().select("personalDetails").populate("personalDetails").exec()
+
                 userData.length>0 && userData.forEach(async(item)=>{
                
                    const updatedCustomAttributes =  item?.personalDetails?.customAttributes.filter((elem)=>elem.title!==attributeData.attributeList[index]?.title)
                    item.personalDetails.customAttributes = updatedCustomAttributes; 
 
-                   const result = await item.personalDetails.save()
+                   const result = await item.personalDetails.save() 
+                   if(!result)
+                    {
+                        return res.json({
+                            message : "Failed to delete from userData"
+                        })
+                    }
                  
                 })
                     break ;
@@ -231,7 +238,7 @@ const deleteAttribute = async(req,res)=>{
                         if(!result)
                             {
                                 return res.json({
-                                    message : "Failed to delete from userData"
+                                    message : "Failed to delete from Organization"
                                 })
                             }
                     })
@@ -250,7 +257,7 @@ const deleteAttribute = async(req,res)=>{
                     if(!result)
                         {
                             return res.json({
-                                message : "Failed to delete from userData"
+                                message : "Failed to delete from SubOrganization"
                             })
                         }
                 })
@@ -267,7 +274,7 @@ const deleteAttribute = async(req,res)=>{
                     if(!result)
                         {
                             return res.json({
-                                message : "Failed to delete from userData"
+                                message : "Failed to delete from Department"
                             })
                         }
                 })
