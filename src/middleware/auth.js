@@ -5,7 +5,7 @@ const fullAccessList = require("../models/fullAccessList")
 const auth = async(req,res,next)=>{
 try{
   
-    // console.log(req.body)
+    console.log(req.header("Authorization"))
     const token =  req.header("Authorization").replace("Bearer ","")
   console.log("REQ",req.body)
     if(!token)

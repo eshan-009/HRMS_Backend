@@ -34,4 +34,4 @@ const attendenceSchema = new mongoose.Schema({
 
 })
 
-module.exports = mongoose.model("Attributes",attendenceSchema)
+module.exports = mongoose.model("Attendence",attendenceSchema)

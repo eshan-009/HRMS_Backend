@@ -15,13 +15,17 @@ const addTiming = async(req,res)=>{
             const {hours,minutes} = req.body
 
             const data = await attendence.find().select("timing")
-            const timing = data?.timing
-           if(timing)
+         
+  
+
+           if(data)
            {
-            return res.json({
+            
+            return res.status(400).json({
                 success : false,
                 message : "Timing Already Exist"
             })
+    
            }
 
            const timeData = await attendence.create({
@@ -164,7 +168,9 @@ const addLocation = async(req,res)=>{
                 })
             }
             const {name,longitude,latitude} = req.body
-            const data = await attendence.find()
+           
+            const data = await attendence.findOne()
+            console.log({name,longitude,latitude},data)
             let result;
             if(!data)
             {
@@ -177,10 +183,13 @@ const addLocation = async(req,res)=>{
             else
             {
                 const locationData =data?.locations
-                locationData.name = name
-                locationData.longitude = longitude
-                locationData.latitude = latitude
-                result = await locationData.save()
+                const newData = {
+                    name: name,
+                    longitude : longitude,
+                    latitude : latitude
+                }
+                locationData.push(newData)
+                result = await data.save()
 
             }
 
@@ -224,7 +233,7 @@ const editLocation = async(req,res)=>{
             const data = await attendence.findById(attendenceId)
 
             const locationData = data?.locations
-            const index = locationData.indexOf((item)=>locationId.equals(item._id))
+            const index = locationData.findIndex((item)=>locationId.equals(item._id))
             if(index!==-1)
             {
                 const required = locationData[index]
@@ -323,9 +332,27 @@ const getAttendenceData = async(req,res)=>{
                     message : "Not Authorized to perform this action"
                 })
             }
+
+            const data = await attendence.findOne()
+
+            if(data)
+            {
+                return res.status(200).json({
+                    success : true,
+                    message : "Attendence Data fetched successfully",
+                    data : data
+                })
+            }
+            else{
+                return res.json({
+                    success : false,
+                    message : "NO Data Found",
+                    data : data
+                })
+            }
     } catch(err) {
         console.log(err)
     }
 }
 
-module.exports = {addTiming}
+module.exports = {getAttendenceData,addTiming,addLocation}

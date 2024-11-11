@@ -13,6 +13,7 @@ router.use("/v1",require("./roleRoutes"))
 router.use("/v1",require("./employeeRoutes"))
 router.use("/v1",require("./skillRoutes"))
 router.use("/v1",require("./authRoutes"))
+router.use("/v1",require("./attendenceRoutes"))
 
 
 router.get("/v1/asideTabsData",auth,getTabData)
