@@ -66,10 +66,11 @@ const editTiming = async(req,res)=>{
                     message : "Not Authorized to perform this action"
                 })
             }
-            const attendenceId = req.params
+            const {attendenceId} = req.params
             const {hours,minutes} = req.body
+            console.log("DATA",attendenceId)
 
-            const data = await attendence.find(attendenceId)
+            const data = await attendence.findById(attendenceId)
            if(!data)
            {
             return res.json({
@@ -78,11 +79,11 @@ const editTiming = async(req,res)=>{
             })
            }
            const timingData = data?.timing
-
+         
            timingData.hours = hours
            timingData.minutes = minutes
 
-           const result = timingData.save()
+           const result = data.save()
        
 
            if(result)
@@ -116,7 +117,7 @@ const deleteTiming = async(req,res)=>{
                 })
             }
 
-            const attendenceId = req.params
+            const {attendenceId} = req.params
          
 
             const data = await attendence.find(attendenceId)
@@ -230,10 +231,11 @@ const editLocation = async(req,res)=>{
             }
             const {locationId,attendenceId} = req.params
             const {name,longitude,latitude} = req.body
+            console.log({locationId,attendenceId,name,longitude,latitude})
             const data = await attendence.findById(attendenceId)
 
             const locationData = data?.locations
-            const index = locationData.findIndex((item)=>locationId.equals(item._id))
+            const index = locationData.findIndex((item)=>item?._id.equals(locationId))
             if(index!==-1)
             {
                 const required = locationData[index]
@@ -241,7 +243,7 @@ const editLocation = async(req,res)=>{
                 required.longitude = longitude
                 required.latitude = latitude
 
-                const result = await required.save()
+                const result = await data.save()
 
                 if(result)
                 {
@@ -267,7 +269,7 @@ const editLocation = async(req,res)=>{
 
     } catch(err) {
         console.log(err)
-        return res.josn(500).json({
+        return res.json(500).json({
             success : false,
             message : "Something went wrong"
         })
@@ -290,7 +292,7 @@ const deleteLocation = async(req,res)=>{
             const data = await attendence.findById(attendenceId)
 
             const locationData = data?.locations
-            const index = locationData.findIndex((item)=>locationId.equals(item._id))
+            const index = locationData.findIndex((item)=>item._id.equals(locationId))
             if(index!==-1)
             {
                locationData.splice(index,1)
@@ -355,4 +357,4 @@ const getAttendenceData = async(req,res)=>{
     }
 }
 
-module.exports = {getAttendenceData,addTiming,addLocation}
+module.exports = {getAttendenceData,addTiming,addLocation,editTiming,editLocation,deleteTiming,deleteLocation}

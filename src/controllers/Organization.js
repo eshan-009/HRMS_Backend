@@ -18,11 +18,11 @@ const getOrganizations = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
-       const page=req.query.page
-       const limit=req.query.page
+       const page=parseInt(req.query.page)
+       const limit=parseInt(req.query.limit)
        
-        console.log("============================>>>>",page,limit,"<<<<<===========================")
-        if(page=="All")
+     
+        if(!page)
         {
             const orgData = await organization.find()
 
@@ -37,7 +37,7 @@ const getOrganizations = async(req,res)=>{
         const orgData = await organization.find().skip((page-1)*limit).limit(limit+1);
 
         const isLast = orgData.length>limit ? false : true
-        console.log(orgData)
+        // console.log(orgData)
       if(orgData && orgData.length>0)
       {
         return res.status(200).json({

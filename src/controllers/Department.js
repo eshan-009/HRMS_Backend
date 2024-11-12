@@ -13,8 +13,8 @@ const getDepartment = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
-        const page = req.query.page
-        const limit = req.query.limit
+        const page = parseInt(req.query.page)
+        const limit = parseInt(req.query.limit)
 
         if(!page || !limit)
         {
@@ -24,8 +24,9 @@ const getDepartment = async(req,res)=>{
             })
         }
 
-        const departmentData= await department.find().skip((page-1)*limit).limit(limit)
 
+        const departmentData= await department.find()
+        // .skip((page-1)*limit).limit(limit)
         if(departmentData)
         {
             return res.status(200).json({
