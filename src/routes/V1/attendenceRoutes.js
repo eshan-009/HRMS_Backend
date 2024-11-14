@@ -10,7 +10,7 @@ router.put("/editLoaction/:attendenceId/:locationId",auth,editLocation)
 router.delete("/deleteLocation/:attendenceId/:locationId",auth,deleteLocation)
 router.post("/addTiming",auth,addTiming)
 router.put("/editTiming/:attendenceId",auth,editTiming)
-router.post("/deleteTiming/:attendenceId",auth,deleteTiming)
+router.delete("/deleteTiming/:attendenceId",auth,deleteTiming)
 router.get("/getAttendenceData",auth,getAttendenceData)
 
 

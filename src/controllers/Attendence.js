@@ -14,11 +14,11 @@ const addTiming = async(req,res)=>{
 
             const {hours,minutes} = req.body
 
-            const data = await attendence.find().select("timing")
+            const data = await attendence.findOne()
          
-  
+  console.log(data.timing.hours)
 
-           if(data)
+           if(data.timing.hours)
            {
             
             return res.status(400).json({
@@ -27,21 +27,37 @@ const addTiming = async(req,res)=>{
             })
     
            }
+if(!data)
+{
+    const timeData = await attendence.create({
+        timing : {
+            hours : hours,
+            minutes : minutes
+        }
+       })
 
-           const timeData = await attendence.create({
-            timing : {
-                hours : hours,
-                minutes : minutes
-            }
-           })
+       if(timeData)
+       {
+        return res.status(200).json({
+            success : true,
+            message : "Timing added Successfully"
+        })
+       }
+}
+else{
+    data.timing.hours = hours
+    data.timing.minutes = minutes
+    const result = await data.save()
 
-           if(timeData)
-           {
-            return res.status(200).json({
-                success : true,
-                message : "Timing added Successfully"
-            })
-           }
+    if(result)
+        {
+         return res.status(200).json({
+             success : true,
+             message : "Timing added Successfully"
+         })
+        }
+}
+        
            return res.json({
             success : false,
             message : "Failed To Add Timing"
@@ -120,7 +136,7 @@ const deleteTiming = async(req,res)=>{
             const {attendenceId} = req.params
          
 
-            const data = await attendence.find(attendenceId)
+            const data = await attendence.findById(attendenceId)
             const timingData = data?.timing
            if(!timingData)
            {
@@ -131,7 +147,7 @@ const deleteTiming = async(req,res)=>{
            }
            timingData.hours = null
            timingData.minutes = null
-           const result =     await timingData.save()
+           const result =     await data.save()
 
            if(result)
            {
@@ -297,7 +313,7 @@ const deleteLocation = async(req,res)=>{
             {
                locationData.splice(index,1)
 
-                const result = await locationData.save()
+                const result = await data.save()
 
                 if(result)
                 {
