@@ -76,8 +76,17 @@ const getDepartmentByOrganization = async(req,res)=>{
         const orgData = await organization.findById(organizationId).select("departments").populate({
             path : "departments",
             skip : (page-1)*limit,
-            limit : limit+1
-           })
+            limit : limit+1,
+            populate : {
+                path : "manager",
+                select : "personalDetails",
+                populate : {
+                    path : "personalDetails"
+                }
+            }
+
+
+           })       
            console.log(orgData)
         // const departmentData= await department.find().skip((page-1)*limit).limit(limit)
            const departmentData = orgData.departments
@@ -130,7 +139,13 @@ const getUnassignedDepartment = async(req,res)=>{
     
       
        
-        const departmentData= await department.find({Organization : null}).skip((page-1)*limit).limit(limit+1).exec()
+        const departmentData= await department.find({Organization : null}).populate({
+            path : "manager",
+            select : "personalDetails",
+            populate :{
+                path : "personalDetails"
+            }
+        }).skip((page-1)*limit).limit(limit+1).exec()
         // .skip((page-1)*limit).limit(limit+1).lean().exec()
         const isLast = departmentData.length>limit ? false : true
 
