@@ -289,7 +289,7 @@ const addEmployeePersonalDetails = async (req,res) => {
     const skills = req.body.skills!=="undefined" ? JSON.parse(req.body?.skills) : ""
     const customAttributes = JSON.parse(req.body.customAttributes)
 
-    console.log("DepartmentId",departmentId)
+    console.log("skills",skills)
  
     
     const { userId } = req.params;
@@ -488,21 +488,24 @@ const editEmployeePersonalDetails = async(req,res)=>{
             employeeCode,
             department,
         
-            skills,
+        
             designation,
           } = req.body;
-          
+
+          const     skills = JSON.parse(req.body?.skills)
           const     customAttributes = JSON.parse(req.body?.customAttributes)
           const { userId } = req.params;
           const newImage = req?.files?.newImage;
 
-          console.log( firstName,
-            lastName,
-            employeeCode,
-            department,
+          console.log(
+            //  firstName,
+            // lastName,
+            // employeeCode,
+            // department,
         
             skills,
-            designation,userId,customAttributes,newImage)
+            // designation,userId,customAttributes,newImage
+          )
 
           if (
             !firstName ||
@@ -536,7 +539,7 @@ const editEmployeePersonalDetails = async(req,res)=>{
         const personalData = userData.personalDetails;
 
         const publicId =   newImage && `${process.env.cloudinaryFolderName}/${personalData.profilePicture.split("/").at(-2)}`
-        console.log("====PUBLIC ID---->>>",personalData,publicId)
+        // console.log("====PUBLIC ID---->>>",personalData,publicId)
         const deleteFromCloudinary =  newImage && await cloudinary.uploader.destroy(publicId)
         if(newImage && !deleteFromCloudinary)
         {
@@ -554,7 +557,7 @@ const editEmployeePersonalDetails = async(req,res)=>{
         personalData.employeeCode=employeeCode
         newImage && (personalData.profilePicture = newDP.url)
    
-        // personalData.skills = skills
+        personalData.skills = skills
         // personalData.designation = designation
         personalData.customAttributes = customAttributes
 

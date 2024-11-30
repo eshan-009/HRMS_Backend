@@ -50,15 +50,12 @@ const profileSchema = new mongoose.Schema({
   ],
   skills: [
     {
-      type: mongoose.Types.ObjectId,
-      ref: "Skill",
+     type : String
     },
   ],
-  designation: {
-    type : String
-    // type: mongoose.Types.ObjectId,
-    // ref: "Designation",
-  },
+  designation: [
+    {type : String}
+  ],
 })
 
 module.exports = mongoose.model("Profile",profileSchema)

@@ -1,6 +1,34 @@
 
 const skills = require("../models/skill")
 
+const getAllSkills = async(req,res)=>{
+    try
+    {
+        const access = req.body.accessList.includes("GET_ALL_SKILLS")
+        if(!access)
+        {
+            return res.status().json({
+                success : false,
+                message : "Not Authorized to perform this action"
+            })
+        }
+
+        const data = await skills.find()
+
+        if(data.length>0)
+        {
+            return res.status(200).json({
+                success : true,
+                message : "skills fetched successfully",
+                data : data
+                
+            })
+        }
+        
+    } catch(err) {
+        console.log(err)
+    }
+}
 
 
 const addSkill = async(req,res)=>{
@@ -130,4 +158,4 @@ return res.status(500).json({
 }
 }
 
-module.exports = {addSkill,editSkill,deleteSkill}
+module.exports = {getAllSkills,addSkill,editSkill,deleteSkill}
