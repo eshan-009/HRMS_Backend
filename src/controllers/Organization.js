@@ -76,7 +76,7 @@ const addOrganization = async(req,res)=>{
         const {name,description} = req.body
         const customAttributes = JSON.parse(req.body.customAttributes)
         const logo = req.files.logo
-        console.log({name,description,customAttributes,logo})
+        // console.log({name,description,customAttributes,logo})
         if(!name || !description || !logo)
             {
                 return res.status(400).json({
@@ -95,7 +95,7 @@ const addOrganization = async(req,res)=>{
                 })
             }
             const image = await uploadToCLoudinary(logo,process.env.cloudinaryFolderName,100,100)
-            console.log("Here",image.url)
+            // console.log("Here",image.url)
        
            let addOrg;
             if(customAttributes &&  customAttributes.length>0)
@@ -167,7 +167,7 @@ const editOrganization = async(req,res)=>{
         }
     const {name,description} = req.body
     const customAttributes = JSON.parse(req.body.customAttributes)
-    console.log("LLLLLLLLLLL",{name,description})
+    // console.log("LLLLLLLLLLL",{name,description})
     const {organizationId} = req.params
     const logo = req?.files?.logo ?? null
 

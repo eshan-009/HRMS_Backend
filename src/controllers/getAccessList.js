@@ -5,7 +5,7 @@ const fullAccessList = require("../models/fullAccessList");
   try {
    
     const access = req.body.accessList.includes("GET_ACCESS_PRIVILEGES");
-    console.log(access)
+    // console.log(access)
     if (!access) {
       return res.status(400).json({
         success: false,
@@ -16,7 +16,7 @@ const fullAccessList = require("../models/fullAccessList");
 
     const accessData = await fullAccessList.find();
 
-    console.log("data--------------",accessData)
+    // console.log("data--------------",accessData)
     if (accessData) 
       {
       return res.status(200).json({

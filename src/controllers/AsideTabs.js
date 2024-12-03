@@ -38,7 +38,7 @@ const getTabData = async(req,res)=>{
                 filteredTabData = filteredTabData.filter((item)=>item.label!==key)
             }
         }
-       console.log("00000000000000000>>>>>>>>>>>>>>>>>>",filteredTabData,"000000000000000000<<<<<<<<<<<<<<<<<<<<<<<")
+    //    console.log("00000000000000000>>>>>>>>>>>>>>>>>>",filteredTabData,"000000000000000000<<<<<<<<<<<<<<<<<<<<<<<")
         return res.status(200).json({
             success : true,
             message : "Tab Data fetched Successfully",

@@ -154,11 +154,11 @@ const addBranch = async(req,res)=>{
                 message : "Not Authorized to perform this action"
             })
         }
-        console.log("================START===============")
+        // console.log("================START===============")
         const {name,customAttributes}=req.body
         const {organizationId} = req.params
 
-     console.log({name,customAttributes},{organizationId})
+    //  console.log({name,customAttributes},{organizationId})
         if(!name || ! customAttributes || !organizationId)
         {
             return res.json({
@@ -225,7 +225,7 @@ const editBranch = async(req,res)=>{
         const {name,customAttributes}=req.body
         const {branchId} = req.params
 
-        console.log("HERERERERERERERREREEEEEEEEEEEEEEEEEE",{name,customAttributes},{branchId})
+        // console.log("HERERERERERERERREREEEEEEEEEEEEEEEEEE",{name,customAttributes},{branchId})
         if(!name  || ! customAttributes || !branchId)
         {
             return res.json({
@@ -273,15 +273,15 @@ const deleteBranch = async(req,res)=>{
         }
         const {organizationId,branchId} = req.params
         // const organizationData = await organization.findById(organizationId)
-console.log({organizationId,branchId})
+// console.log({organizationId,branchId})
         const deleteBranch = await branch.findByIdAndDelete(branchId)
         if(deleteBranch)
         {
-            console.log("AGAIN",organizationId,!organizationId)
-            console.log("HERE1111111")
+            // console.log("AGAIN",organizationId,!organizationId)
+            // console.log("HERE1111111")
             if(organizationId!=='undefined')
             {
-                console.log("HERE2222222")
+                // console.log("HERE2222222")
                 const organizationData = await organization.findById(organizationId)
             const index = organizationData.branches.indexOf(branchId)
             organizationData.branches.splice(index,1)

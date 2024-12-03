@@ -9,10 +9,10 @@ const getUserById = async(req,res)=>{
       const {currUserId} = req.body
       // console.log(currUserId,typeof userId)
       let userData;
-      console.log("here1",userId)
+      // console.log("here1",userId)
       if(userId!=="null")
       {
-        console.log("here2")
+        // console.log("here2")
         userData =  await user.findById(userId).select("role").select("personalDetails").populate({
           path : "role",
           select : "title"
@@ -30,7 +30,7 @@ const getUserById = async(req,res)=>{
 
    
 
-      console.log(userData)
+      // console.log(userData)
       if(userData)
       {
         return res.status(200).json({
@@ -64,7 +64,7 @@ const createUser = async(req,res)=>{
         const userData = await user.find({email:email})
         if(userData.length>0)
         {
-          console.log("ALREADY EXIST")
+          // console.log("ALREADY EXIST")
             // return res.json({
             //     success : false,
             //     message : "User already exist"
@@ -81,7 +81,7 @@ const createUser = async(req,res)=>{
 
         if(addUser)
         {
-          console.log("RESGITERED SUCCESSFULLY")
+          // console.log("RESGITERED SUCCESSFULLY")
           // return  res.status(200).json({
           //       success : true,
           //       message : `${email} is registered successfully`

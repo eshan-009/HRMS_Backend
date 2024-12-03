@@ -187,7 +187,7 @@ const addLocation = async(req,res)=>{
             const {name,longitude,latitude} = req.body
            
             const data = await attendence.findOne()
-            console.log({name,longitude,latitude},data)
+            // console.log({name,longitude,latitude},data)
             let result;
             if(!data)
             {
@@ -247,7 +247,7 @@ const editLocation = async(req,res)=>{
             }
             const {locationId,attendenceId} = req.params
             const {name,longitude,latitude} = req.body
-            console.log({locationId,attendenceId,name,longitude,latitude})
+            // console.log({locationId,attendenceId,name,longitude,latitude})
             const data = await attendence.findById(attendenceId)
 
             const locationData = data?.locations

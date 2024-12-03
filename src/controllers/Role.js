@@ -57,7 +57,7 @@ const addRole = async(req,res)=>{
         }
         const {title,roleAccessList,selectedCategories} = req.body
 
-        console.log({title,roleAccessList} )
+        // console.log({title,roleAccessList} )
 
 const roleData = await roles.find({title:title})
 
@@ -112,7 +112,7 @@ const editRole = async(req,res)=>{
     }
     const {roleId} = req.params
     const {title,roleAccessList,selectedCategories} = req.body
-    console.log({roleId},{title,roleAccessList})
+    // console.log({roleId},{title,roleAccessList})
     const roleData = await roles.findById(roleId)
 
     if(!roleData)

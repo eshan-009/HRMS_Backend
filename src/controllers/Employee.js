@@ -130,7 +130,7 @@ const getEmployeebyname = async(req,res)=>{
         })
     }
     const {name} = req.body
-    console.log("name",name)
+    // console.log("name",name)
     const firstName = name.split(" ")[0]
     const lastName = name.split(" ")[1]
     
@@ -289,22 +289,22 @@ const addEmployeePersonalDetails = async (req,res) => {
     const skills = req.body.skills!=="undefined" ? JSON.parse(req.body?.skills) : ""
     const customAttributes = JSON.parse(req.body.customAttributes)
 
-    console.log("skills",skills)
+    // console.log("skills",skills)
  
     
     const { userId } = req.params;
     const profilePicture = req.files.profilepicture;
 
-    console.log({
-      firstName,
-      lastName,
-      departmentId,
-      skills,
-      designation,
-      customAttributes,
-      userId,
-      profilePicture
-    })
+    // console.log({
+    //   firstName,
+    //   lastName,
+    //   departmentId,
+    //   skills,
+    //   designation,
+    //   customAttributes,
+    //   userId,
+    //   profilePicture
+    // })
 
 
 
@@ -329,7 +329,7 @@ const addEmployeePersonalDetails = async (req,res) => {
       100,
       100
     );
-console.log("DPDPDPDPDP",dp.url)
+// console.log("DPDPDPDPDP",dp.url)
 
     const employeePersonal = await profile.create({
       firstName: firstName,
@@ -349,14 +349,14 @@ console.log("DPDPDPDPDP",dp.url)
     const result = userData.save()
   
     const departmentData = await department.findById(departmentId).select("employees").exec()
-    console.log("departmentDatagggggggggggggggggggggggggg",departmentData)
+    // console.log("departmentDatagggggggggggggggggggggggggg",departmentData)
     const index = departmentData && departmentData.employees.indexOf(userData._id)
-    console.log("indexxxxxxxxxxxxx",index,!index,userData._id)
+    // console.log("indexxxxxxxxxxxxx",index,!index,userData._id)
     if(index == -1)
     {
-      console.log("HERE DEPPP",departmentData.employees,"jhshjsjhbscscjs",!index)
+      // console.log("HERE DEPPP",departmentData.employees,"jhshjsjhbscscjs",!index)
       departmentData.employees && departmentData.employees.push(userData._id)
-      console.log("HERE DEPPP",departmentData.employees)
+      // console.log("HERE DEPPP",departmentData.employees)
     }
     const result2 =  departmentData.save()
 
@@ -497,15 +497,15 @@ const editEmployeePersonalDetails = async(req,res)=>{
           const { userId } = req.params;
           const newImage = req?.files?.newImage;
 
-          console.log(
-            //  firstName,
-            // lastName,
-            // employeeCode,
-            // department,
+          // console.log(
+          //   //  firstName,
+          //   // lastName,
+          //   // employeeCode,
+          //   // department,
         
-            skills,
-            // designation,userId,customAttributes,newImage
-          )
+          //   skills,
+          //   // designation,userId,customAttributes,newImage
+          // )
 
           if (
             !firstName ||
@@ -644,7 +644,7 @@ if(!userData)
 
 if(!userData.additionalDetails)
 {
-  console.log("HEREEEEEE",userData.additionalDetails)
+  // console.log("HEREEEEEE",userData.additionalDetails)
   const result = await additionalDetails.create({})
   if(!result)
   {
@@ -785,8 +785,10 @@ const assignDepartmentToEmployee = async(req,res)=>{
         })
     }
     const {userId,departmentId} = req.params
-    console.log({userId,departmentId})
-      if(!userId || !departmentId)
+
+    // console.log({userId,departmentId})
+    
+    if(!userId || !departmentId)
       {
         return res.json({
           success : false,
@@ -796,13 +798,13 @@ const assignDepartmentToEmployee = async(req,res)=>{
 
       const userData = await user.findById(userId).select("personalDetails").populate("personalDetails").exec();
       const departmentData = await department.findById(departmentId)
-console.log(departmentData._id)
+// console.log(departmentData._id)
       if(userData && departmentData)
       {
         userData.personalDetails.department = departmentData._id
         const result1 = await userData.personalDetails.save()
         const found = departmentData.employees.find((item)=>item.equals(userData._id))
-        console.log("FOUNDDD",found)
+        // console.log("FOUNDDD",found)
         if(!found)
         {
           departmentData.employees.push(userData._id)
@@ -843,7 +845,7 @@ const unAssignDepartmentToEmployee = async(req,res)=>{
         })
     }
     const {userId,departmentId} = req.params
-    console.log({userId,departmentId})
+    // console.log({userId,departmentId})
       if(!userId || !departmentId)
       {
         return res.json({
@@ -855,7 +857,7 @@ const unAssignDepartmentToEmployee = async(req,res)=>{
       const userData = await user.findById(userId).select("personalDetails").populate("personalDetails").exec();
    
       const departmentData = await department.findById(departmentId)
-      console.log(departmentData)
+      // console.log(departmentData)
       if(userData && departmentData)
       {
         userData.personalDetails.department = null

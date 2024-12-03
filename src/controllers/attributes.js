@@ -8,12 +8,12 @@ const getAttributes = async(req,res)=>{
     try{
      
         const {parent}=req.body
-console.log("PARENT-------->>>>>",parent)
+// console.log("PARENT-------->>>>>",parent)
         const EmployeeAccess = req.body.accessList.includes("GET_EMPLOYEE_ATTRIBUTE")
         const organizationAccess = req.body.accessList.includes("GET_ORGANIZATION_ATTRIBUTE")
         const branchAccess = req.body.accessList.includes("GET_BRANCH_ATTRIBUTE")
         const departmentAccess = req.body.accessList.includes("GET_DEPARTMENT_ATTRIBUTE")
-console.log("departmentAccess======>",departmentAccess)
+// console.log("departmentAccess======>",departmentAccess)
         if((parent==="Employee" && !EmployeeAccess ) || (parent==="Organization" && !organizationAccess) || (parent==="SubOrganization" && !branchAccess) 
             || (parent==="Department" && !departmentAccess) )
         {
@@ -22,9 +22,9 @@ console.log("departmentAccess======>",departmentAccess)
                 message : "Not Authorized to perform this action"
             })
         }
-        console.log("HERE1")
+        // console.log("HERE1")
       const attributeData =  await attributeSchema.findOne({parent : parent})
-      console.log("HERE2",attributeData)
+    //   console.log("HERE2",attributeData)
    if(attributeData)
    {
     return res.status(200).json({
@@ -49,7 +49,7 @@ console.log("departmentAccess======>",departmentAccess)
 const addAttribute = async(req,res)=>{
     try{
         const {customAttribute,parent} =req.body
-console.log(req.body)
+// console.log(req.body)
         
         console.log({customAttribute,parent})
         if(!customAttribute || !parent)
@@ -75,7 +75,7 @@ console.log(req.body)
         }
 
         var attributeData = await attributeSchema.findOne({parent:parent})
-        console.log("=======Here 1===========",attributeData)
+        // console.log("=======Here 1===========",attributeData)
          if(attributeData)
          {
              const attributeList = attributeData.attributeList
@@ -86,7 +86,7 @@ console.log(req.body)
                }
               
              
-              console.log("===========Here 2 ===========",attributeData)
+            //   console.log("===========Here 2 ===========",attributeData)
          }
          else
          {
@@ -94,7 +94,7 @@ console.log(req.body)
                  parent : parent,
                  attributeList:[{title : customAttribute}]
              })
-             console.log("===========Here 3 ===========",attributeData)
+            //  console.log("===========Here 3 ===========",attributeData)
          }
          if(result)
          {
@@ -115,10 +115,10 @@ console.log(req.body)
 
 const editAttribute = async(req,res)=>{
 try{
-    console.log("==========Edit================")
+    // console.log("==========Edit================")
     const {attributeId} = req.params
     const {customAttribute,parent} =req.body
-   console.log({customAttribute,parent},{attributeId})
+//    console.log({customAttribute,parent},{attributeId})
 
 
     if(!customAttribute || !parent)
@@ -144,13 +144,13 @@ try{
     }
 
   const  attributeData = await attributeSchema.findOne({parent:parent})
-  console.log(attributeData.attributeList)
+//   console.log(attributeData.attributeList)
 let bool =false;
   attributeData.attributeList.map((item)=>{
     
     if(item._id==attributeId)
     {
-        console.log("==========item=========",item._id==attributeId)
+        // console.log("==========item=========",item._id==attributeId)
         item.title=customAttribute
         bool=true
        
@@ -205,7 +205,7 @@ const deleteAttribute = async(req,res)=>{
         {
             const index = attributeData.attributeList.indexOf(item)
 
-            console.log("BEFORE",attributeData.attributeList[index],"\nNEWNENWEN",index)
+            // console.log("BEFORE",attributeData.attributeList[index],"\nNEWNENWEN",index)
               
             switch(parent){
                 case "Employee" : 
